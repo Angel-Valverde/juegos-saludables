@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juegos Saludables para Niños</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            background: linear-gradient(135deg, #FFB6C1, #98FB98);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        h1 {
+            color: #FF69B4;
+            font-size: 3.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin: 30px 0;
+            animation: tituloAnimado 2s infinite;
+        }
+
+        .contenedor-botones {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-top: 50px;
+        }
+
+        .boton-juego {
+            padding: 25px 40px;
+            font-size: 1.5em;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 350px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .boton-juego:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        #boton-laberinto {
+            background-color: #FF69B4;
+        }
+
+        #boton-memorama {
+            background-color: #FFA500;
+        }
+
+        #boton-frutas {
+            background-color: #32CD32;
+        }
+
+        @keyframes tituloAnimado {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .boton-juego {
+                width: 280px;
+                padding: 20px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 Juegos de Hábitos Saludables 🍎</h1>
+    
+    <div class="contenedor-botones">
+        <button class="boton-juego" id="boton-laberinto" onclick="window.location.href='juego-laberinto.html'">
+            🏃‍♂️ Juego de Laberinto Saludable
+        </button>
+        
+        <button class="boton-juego" id="boton-memorama" onclick="window.location.href='juego-memorama.html'">
+            🧠 Memorama Saludable
+        </button>
+        
+        <button class="boton-juego" id="boton-frutas" onclick="window.location.href='juego-frutas.html'">
+            🍎 Recolección de Frutas
+        </button>
+    </div>
+
+    <script>
+        // Efecto adicional al pasar el mouse sobre los botones
+        document.querySelectorAll('.boton-juego').forEach(boton => {
+            boton.addEventListener('mouseover', () => {
+                boton.style.transform = 'rotate(2deg) scale(1.05)';
+            });
+            
+            boton.addEventListener('mouseout', () => {
+                boton.style.transform = 'rotate(0deg) scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

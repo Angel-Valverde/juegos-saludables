@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memorama Saludable</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            background: linear-gradient(135deg, #FFD700, #98FB98);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Menú principal */
+        #menu-inicio {
+            text-align: center;
+            display: block;
+            max-width: 600px;
+        }
+
+        .titulo-principal {
+            color: #FF69B4;
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin: 20px 0;
+        }
+
+        .boton-menu {
+            padding: 15px 40px;
+            font-size: 1.5em;
+            margin: 15px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            background: #FF69B4;
+            color: white;
+            transition: transform 0.3s;
+        }
+
+        .boton-menu:hover {
+            transform: scale(1.05);
+        }
+
+        .instrucciones-menu {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: left;
+        }
+
+        /* Juego */
+        #juego {
+            display: none;
+        }
+
+        .memorama-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 15px;
+            margin: 20px;
+        }
+
+        .carta {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 2em;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .carta.volteada {
+            background: #FFB6C1;
+            transform: rotateY(180deg);
+        }
+
+        .carta.encontrada {
+            background: #98FB98;
+            cursor: default;
+        }
+
+        #timer {
+            font-size: 2em;
+            color: #FF4500;
+            padding: 10px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 15px 0;
+        }
+
+        /* Pantalla de resultados */
+        #resultado {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 500px;
+        }
+
+        #resultado h2 {
+            font-size: 3em;
+            margin: 0 0 20px 0;
+        }
+
+        #resultado.ganador {
+            background: #a5d6a7;
+        }
+
+        #resultado.perdedor {
+            background: #ffab91;
+        }
+
+        .mensaje-salud {
+            font-size: 1.2em;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menú principal -->
+    <div id="menu-inicio">
+        <h1 class="titulo-principal">Memorama Saludable</h1>
+        <button class="boton-menu" onclick="iniciarJuego()">¡Jugar Ahora!</button>
+        <div class="instrucciones-menu">
+            <h2>📚 Instrucciones</h2>
+            <ul>
+                <li>⏳ Tienes 2 minutos para completar el juego</li>
+                <li>🖱️ Haz clic en las cartas para voltearlas</li>
+                <li>🍎 Encuentra los pares de alimentos iguales</li>
+                <li>🎉 ¡Encuentra todos los pares para ganar!</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Juego -->
+    <div id="juego">
+        <h1 class="titulo-principal">🧠 ¡A Jugar! 🍎</h1>
+        <div id="timer">Tiempo: 02:00</div>
+        <div class="memorama-grid" id="memorama"></div>
+    </div>
+
+    <!-- Pantalla de resultado -->
+    <div id="resultado">
+        <h2 id="titulo-resultado">¡Ganaste! 🎉</h2>
+        <div class="mensaje-salud" id="mensaje-salud"></div>
+        <button class="boton-menu" onclick="volverAlMenu()">Volver al Menú</button>
+    </div>
+
+    <script>
+        const alimentos = ['🍎', '🥦', '🥕', '🍇', '🍓', '🥑', '🍌', '🍊'];
+        let cartasVolteadas = [];
+        let paresEncontrados = 0;
+        let tiempoRestante = 120;
+        let timerId;
+        let bloqueado = false;
+
+        function iniciarJuego() {
+            // Reiniciar variables del juego
+            cartasVolteadas = [];
+            paresEncontrados = 0;
+            tiempoRestante = 120;
+            bloqueado = false;
+            
+            // Mostrar elementos del juego
+            document.getElementById('menu-inicio').style.display = 'none';
+            document.getElementById('resultado').style.display = 'none';
+            document.getElementById('juego').style.display = 'block';
+            
+            // Reiniciar tablero
+            const memorama = document.getElementById('memorama');
+            memorama.innerHTML = '';
+            const paresMezclados = [...alimentos, ...alimentos]
+                .sort(() => Math.random() - 0.5);
+            
+            paresMezclados.forEach((alimento, indice) => {
+                const carta = document.createElement('div');
+                carta.className = 'carta';
+                carta.dataset.valor = alimento;
+                carta.dataset.indice = indice;
+                carta.textContent = '?';
+                carta.addEventListener('click', voltearCarta);
+                memorama.appendChild(carta);
+            });
+
+            // Reiniciar temporizador
+            clearInterval(timerId);
+            document.getElementById('timer').textContent = 'Tiempo: 02:00';
+            timerId = setInterval(actualizarTemporizador, 1000);
+        }
+
+        function voltearCarta(e) {
+            if (bloqueado) return;
+            
+            const carta = e.target;
+            if (!carta.classList.contains('volteada') && cartasVolteadas.length < 2) {
+                carta.textContent = carta.dataset.valor;
+                carta.classList.add('volteada');
+                cartasVolteadas.push(carta);
+
+                if (cartasVolteadas.length === 2) {
+                    verificarPar();
+                }
+            }
+        }
+
+        function verificarPar() {
+            bloqueado = true;
+            const [carta1, carta2] = cartasVolteadas;
+
+            if (carta1.dataset.valor === carta2.dataset.valor) {
+                carta1.classList.add('encontrada');
+                carta2.classList.add('encontrada');
+                paresEncontrados++;
+
+                if (paresEncontrados === alimentos.length) {
+                    clearInterval(timerId);
+                    mostrarResultado(true);
+                }
+                bloqueado = false;
+            } else {
+                setTimeout(() => {
+                    carta1.textContent = '?';
+                    carta2.textContent = '?';
+                    carta1.classList.remove('volteada');
+                    carta2.classList.remove('volteada');
+                    bloqueado = false;
+                }, 1000);
+            }
+            cartasVolteadas = [];
+        }
+
+        function actualizarTemporizador() {
+            const minutos = Math.floor(tiempoRestante / 60).toString().padStart(2, '0');
+            const segundos = (tiempoRestante % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `Tiempo: ${minutos}:${segundos}`;
+            
+            if (tiempoRestante <= 0) {
+                clearInterval(timerId);
+                mostrarResultado(false);
+            }
+            tiempoRestante--;
+        }
+
+        function mostrarResultado(esGanador) {
+            const resultado = document.getElementById('resultado');
+            const titulo = document.getElementById('titulo-resultado');
+            const mensaje = document.getElementById('mensaje-salud');
+
+            resultado.className = esGanador ? 'ganador' : 'perdedor';
+            titulo.textContent = esGanador ? '¡Ganaste! 🎉' : '¡Tiempo agotado! 😟';
+            
+            mensaje.innerHTML = esGanador 
+                ? `¡Felicidades! 🥦<br>
+                    Una alimentación saludable ayuda a:<br>
+                    ✅ Tener más energía<br>
+                    ✅ Crecer fuerte y sano<br>
+                    ✅ Prevenir enfermedades<br>
+                    ¡Sigue comiendo bien! 💚`
+                : `¡Sigue intentando! 💪<br>
+                    Recuerda que los alimentos saludables:<br>
+                    🧠 Mejoran tu concentración<br>
+                    💪 Fortalecen tus músculos<br>
+                    🛡️ Refuerzan tus defensas<br>
+                    ¡Vuelve a intentarlo! 🍎`;
+
+            document.getElementById('juego').style.display = 'none';
+            resultado.style.display = 'block';
+        }
+
+        function volverAlMenu() {
+            document.getElementById('resultado').style.display = 'none';
+            document.getElementById('menu-inicio').style.display = 'block';
+            clearInterval(timerId);
+        }
+    </script>
+</body>
+</html>

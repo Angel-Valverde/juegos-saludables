@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laberinto Saludable</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #b3e5fc;
+            font-family: 'Comic Sans MS', cursive;
+            min-height: 100vh;
+        }
+
+        #menu-inicio {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .titulo-principal {
+            color: #FF69B4;
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin: 20px 0;
+        }
+
+        .boton-menu {
+            padding: 15px 40px;
+            font-size: 1.5em;
+            margin: 15px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            background: #FF69B4;
+            color: white;
+            transition: transform 0.3s;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            outline: none;
+        }
+
+        .boton-menu:hover {
+            transform: scale(1.05);
+        }
+
+        .instrucciones-menu {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        #juego {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        #laberinto {
+            display: grid;
+            grid-template-columns: repeat(15, 30px);
+            gap: 2px;
+            margin: 20px;
+            background: #fff;
+            padding: 5px;
+            border-radius: 10px;
+            border: 3px solid #78909c;
+        }
+
+        .celda {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pared {
+            background: #78909c;
+        }
+
+        .jugador {
+            background: #ff80ab url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="white" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>') center/60% no-repeat;
+            border-radius: 50%;
+        }
+
+        .objetivo {
+            background: #a5d6a7;
+            border-radius: 10px;
+            font-size: 24px;
+        }
+
+        #timer {
+            font-size: 2em;
+            color: #d32f2f;
+            padding: 10px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .controles {
+            display: grid;
+            grid-template-columns: repeat(3, 50px);
+            gap: 10px;
+            margin: 20px auto;
+            justify-content: center;
+        }
+
+        .boton {
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        .boton:active, .boton:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        #resultado {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 500px;
+        }
+
+        #resultado h2 {
+            font-size: 3em;
+            margin: 0 0 20px 0;
+        }
+
+        #resultado.ganador {
+            background: #a5d6a7;
+        }
+
+        #resultado.perdedor {
+            background: #ffab91;
+        }
+
+        .mensaje-salud {
+            font-size: 1.2em;
+            margin: 20px 0;
+            line-height: 1.5;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .botones-resultado {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="menu-inicio">
+        <h1 class="titulo-principal">Laberinto Saludable</h1>
+        <button class="boton-menu" onclick="iniciarJuego()">¡Jugar Ahora!</button>
+        <div class="instrucciones-menu">
+            <h2>📚 Instrucciones</h2>
+            <ul>
+                <li>⏳ Tienes 1 minuto para llegar al plato saludable</li>
+                <li>🕹️ Usa las flechas o botones para moverte</li>
+                <li>🥗 Encuentra el plato saludable antes de que se acabe el tiempo</li>
+                <li>💪 ¡Mantente activo y come sano!</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="juego">
+        <h1 class="titulo-principal">🏃♀️ ¡Corre al Plato Saludable! 🥗</h1>
+        <div id="timer">Tiempo: 1:00</div>
+        <div id="laberinto"></div>
+        <div class="controles">
+            <div></div>
+            <button class="boton" id="arriba">↑</button>
+            <div></div>
+            <button class="boton" id="izquierda">←</button>
+            <button class="boton" id="abajo">↓</button>
+            <button class="boton" id="derecha">→</button>
+        </div>
+    </div>
+
+    <div id="resultado">
+        <h2 id="titulo-resultado">¡Ganaste! 🎉</h2>
+        <div class="mensaje-salud" id="mensaje-salud"></div>
+        <div class="botones-resultado">
+            <button class="boton-menu" onclick="iniciarJuego()">🔄 Jugar de Nuevo</button>
+            <button class="boton-menu" onclick="volverAlMenu()">🏠 Volver al Menú</button>
+        </div>
+    </div>
+
+    <script>
+        const ANCHO = 15;
+        const ALTO = 15;
+        let laberinto = [];
+        let posJugador = { x: 1, y: 1 };
+        let posMeta = { x: ANCHO-2, y: ALTO-2 };
+        let tiempoRestante = 60;
+        let intervalo;
+
+        function crearLaberinto() {
+            laberinto = Array(ALTO).fill().map(() => Array(ANCHO).fill(1));
+            let stack = [];
+            let current = { x: 1, y: 1 };
+            laberinto[current.y][current.x] = 0;
+            stack.push(current);
+
+            const direcciones = [
+                { dx: 0, dy: -2 }, { dx: 0, dy: 2 },
+                { dx: -2, dy: 0 }, { dx: 2, dy: 0 }
+            ];
+
+            while (stack.length > 0) {
+                let vecinos = [];
+                direcciones.forEach(({ dx, dy }) => {
+                    let x = current.x + dx;
+                    let y = current.y + dy;
+                    if (x > 0 && x < ANCHO-1 && y > 0 && y < ALTO-1 && laberinto[y][x] === 1) {
+                        vecinos.push({ x, y });
+                    }
+                });
+
+                if (vecinos.length > 0) {
+                    let next = vecinos[Math.floor(Math.random() * vecinos.length)];
+                    laberinto[next.y][next.x] = 0;
+                    laberinto[current.y + (next.y - current.y)/2][current.x + (next.x - current.x)/2] = 0;
+                    stack.push(current);
+                    current = next;
+                } else {
+                    current = stack.pop();
+                }
+            }
+
+            laberinto[posJugador.y][posJugador.x] = 3;
+            laberinto[posMeta.y][posMeta.x] = 4;
+        }
+
+        function dibujarLaberinto() {
+            const mapa = document.getElementById('laberinto');
+            mapa.innerHTML = '';
+            
+            for (let y = 0; y < ALTO; y++) {
+                for (let x = 0; x < ANCHO; x++) {
+                    const celda = document.createElement('div');
+                    celda.className = 'celda';
+                    
+                    switch (laberinto[y][x]) {
+                        case 1: celda.classList.add('pared'); break;
+                        case 3: celda.classList.add('jugador'); break;
+                        case 4: celda.classList.add('objetivo'); celda.textContent = '🥗'; break;
+                    }
+                    
+                    mapa.appendChild(celda);
+                }
+            }
+        }
+
+        function actualizarTiempo() {
+            const minutos = Math.floor(tiempoRestante / 60);
+            const segundos = tiempoRestante % 60;
+            document.getElementById('timer').textContent = `Tiempo: ${minutos}:${segundos.toString().padStart(2, '0')}`;
+            
+            if(tiempoRestante <= 0) {
+                mostrarResultado(false);
+                return;
+            }
+            tiempoRestante--;
+        }
+
+        function mover(dx, dy) {
+            const nuevaX = posJugador.x + dx;
+            const nuevaY = posJugador.y + dy;
+            
+            if (nuevaX >= 0 && nuevaX < ANCHO && nuevaY >= 0 && nuevaY < ALTO) {
+                if(laberinto[nuevaY][nuevaX] === 1) return;
+                
+                if(laberinto[nuevaY][nuevaX] === 4) {
+                    mostrarResultado(true);
+                    return;
+                }
+
+                laberinto[posJugador.y][posJugador.x] = 0;
+                posJugador.x = nuevaX;
+                posJugador.y = nuevaY;
+                laberinto[posJugador.y][posJugador.x] = 3;
+                dibujarLaberinto();
+            }
+        }
+
+        function mostrarResultado(esGanador) {
+            clearInterval(intervalo);
+            const resultado = document.getElementById('resultado');
+            const titulo = document.getElementById('titulo-resultado');
+            const mensaje = document.getElementById('mensaje-salud');
+
+            resultado.className = esGanador ? 'ganador' : 'perdedor';
+            titulo.textContent = esGanador ? '¡Ganaste! 🎉' : '¡Tiempo agotado! 😟';
+            
+            mensaje.innerHTML = esGanador 
+                ? `¡Felicidades! 🏆<br><br>
+                    <strong>Hábitos saludables clave:</strong><br><br>
+                    🥕 Consume 5 porciones de frutas/verduras al día<br>
+                    💧 Toma 8 vasos de agua diariamente<br>
+                    🏃 Realiza 30 minutos de ejercicio al día<br>
+                    🛌 Duerme 8 horas cada noche<br>
+                    🧘 Practica manejo del estrés`
+                : `¡Sigue intentando! 💪<br><br>
+                    <strong>Consejos importantes:</strong><br><br>
+                    🚭 Evita hábitos nocivos como fumar<br>
+                    🥤 Reduce el consumo de azúcares<br>
+                    🚶 Mantén una vida activa<br>
+                    🥦 Prioriza alimentos nutritivos`;
+
+            document.getElementById('juego').style.display = 'none';
+            resultado.style.display = 'block';
+        }
+
+        function iniciarJuego() {
+            posJugador = { x: 1, y: 1 };
+            posMeta = { x: ANCHO-2, y: ALTO-2 };
+            tiempoRestante = 60;
+            crearLaberinto();
+            dibujarLaberinto();
+            document.getElementById('menu-inicio').style.display = 'none';
+            document.getElementById('juego').style.display = 'flex';
+            document.getElementById('resultado').style.display = 'none';
+            
+            clearInterval(intervalo);
+            intervalo = setInterval(actualizarTiempo, 1000);
+        }
+
+        function volverAlMenu() {
+            document.getElementById('resultado').style.display = 'none';
+            document.getElementById('menu-inicio').style.display = 'block';
+            clearInterval(intervalo);
+        }
+
+        // Controles
+        document.getElementById('arriba').addEventListener('click', () => mover(0, -1));
+        document.getElementById('abajo').addEventListener('click', () => mover(0, 1));
+        document.getElementById('izquierda').addEventListener('click', () => mover(-1, 0));
+        document.getElementById('derecha').addEventListener('click', () => mover(1, 0));
+
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp': mover(0, -1); break;
+                case 'ArrowDown': mover(0, 1); break;
+                case 'ArrowLeft': mover(-1, 0); break;
+                case 'ArrowRight': mover(1, 0); break;
+            }
+        });
+
+        // Prevenir selección de texto
+        document.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+
+        // Inicializar juego
+        crearLaberinto();
+        dibujarLaberinto();
+    </script>
+</body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Recolección Saludable</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            touch-action: none;
+            font-family: 'Comic Sans MS', cursive;
+            background: #87CEEB;
+        }
+
+        #gameCanvas {
+            background: linear-gradient(to bottom, #87CEEB 50%, #4B996B);
+        }
+
+        .controles {
+            position: fixed;
+            bottom: 30px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .boton-movil {
+            width: 90px;
+            height: 90px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #contador {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .menu {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        .menu-victoria {
+            background: #A8E6CF;
+        }
+
+        .menu-derrota {
+            background: #FFCCCB;
+        }
+
+        .menu h1 {
+            margin: 0 0 20px 0;
+            color: #4B996B;
+        }
+
+        .menu-derrota h1 {
+            color: #ff4444;
+        }
+
+        .reglas-menu {
+            font-size: 1.1em;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(75, 153, 107, 0.1);
+            border-radius: 10px;
+        }
+
+        .reglas-derrota {
+            background: rgba(255, 68, 68, 0.1);
+        }
+
+        .warning {
+            color: #ff4444;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .menu-boton {
+            background: #4B996B;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            width: 80%;
+            transition: transform 0.1s;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        .menu-boton-derrota {
+            background: #ff4444;
+        }
+
+        .beneficios-list, .consecuencias-list {
+            text-align: left;
+            margin: 15px 0;
+            padding: 0 20px;
+        }
+
+        .beneficios-list li {
+            margin: 10px 0;
+            list-style-type: "✅ ";
+            padding-left: 10px;
+        }
+
+        .consecuencias-list li {
+            margin: 10px 0;
+            list-style-type: "❌ ";
+            padding-left: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu" id="mainMenu">
+        <h1>🍏 Recolector Saludable 🥕</h1>
+        <div class="reglas-menu">
+            <p>¡Recolecta 10 alimentos saludables!</p>
+            <p>🥦 🥕 🍇 🍓</p>
+            <p class="warning">¡Evita la comida chatarra! 🍔 🍕</p>
+            <p>Usa los botones o flechas del teclado</p>
+        </div>
+        <button class="menu-boton" id="jugarBtn">¡Jugar Ahora!</button>
+    </div>
+
+    <div class="menu menu-victoria hidden" id="victoriaMenu">
+        <h1>¡Victoria Saludable! 🌟</h1>
+        <div class="reglas-menu">
+            <p>¡Felicidades por tu alimentación saludable!</p>
+            <div class="beneficios-list">
+                <li>Mejora tu energía y vitalidad</li>
+                <li>Fortalece tu sistema inmunológico</li>
+                <li>Mejora tu concentración mental</li>
+                <li>Previene enfermedades cardiovasculares</li>
+                <li>Mantiene huesos y músculos fuertes</li>
+                <li>Promueve un crecimiento saludable</li>
+            </div>
+            <p>¡Sigue eligiendo alimentos nutritivos!</p>
+        </div>
+        <button class="menu-boton" id="volverMenuBtn">¡Jugar de Nuevo!</button>
+    </div>
+
+    <div class="menu menu-derrota hidden" id="derrotaMenu">
+        <h1>¡Oh no! Comida Chatarra 🍔</h1>
+        <div class="reglas-menu reglas-derrota">
+            <p>¡Has consumido comida poco saludable!</p>
+            <div class="consecuencias-list">
+                <li>Aumenta el riesgo de obesidad</li>
+                <li>Puede causar problemas cardíacos</li>
+                <li>Reduce tu energía y concentración</li>
+                <li>Daña tus dientes y causa caries</li>
+                <li>Puede llevar a diabetes tipo 2</li>
+                <li>Afecta negativamente tu estado de ánimo</li>
+            </div>
+            <p class="warning">¡Inténtalo de nuevo y elige mejor!</p>
+        </div>
+        <button class="menu-boton menu-boton-derrota" id="reintentarBtn">Reintentar</button>
+    </div>
+
+    <canvas id="gameCanvas" class="hidden"></canvas>
+    <div id="contador" class="hidden">🍎: 0/10</div>
+    <div class="controles hidden">
+        <div class="boton-movil" id="izquierda">←</div>
+        <div class="boton-movil" id="derecha">→</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const mainMenu = document.getElementById('mainMenu');
+        const victoriaMenu = document.getElementById('victoriaMenu');
+        const derrotaMenu = document.getElementById('derrotaMenu');
+        
+        let jugador = {
+            x: 0,
+            y: 0,
+            width: 60,
+            height: 60,
+            velocidadX: 0,
+            puntaje: 0
+        };
+
+        let objetos = [];
+        let gameLoop;
+        let moviendoIzquierda = false;
+        let moviendoDerecha = false;
+        const VELOCIDAD = 3;
+        const tiposSaludables = ['🥦', '🥕', '🍇', '🍓'];
+        const tiposChatarra = ['🍔', '🍕'];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            jugador.y = canvas.height - 100 - 30;
+            jugador.x = canvas.width / 2;
+        }
+
+        function inicializarControles() {
+            const handleTouch = (e) => {
+                e.preventDefault();
+                if(e.target.id === 'izquierda') moviendoIzquierda = true;
+                if(e.target.id === 'derecha') moviendoDerecha = true;
+            };
+
+            document.getElementById('izquierda').addEventListener('touchstart', handleTouch);
+            document.getElementById('derecha').addEventListener('touchstart', handleTouch);
+            
+            document.getElementById('izquierda').addEventListener('touchend', () => moviendoIzquierda = false);
+            document.getElementById('derecha').addEventListener('touchend', () => moviendoDerecha = false);
+
+            document.addEventListener('keydown', (e) => {
+                if(e.key === 'ArrowLeft') moviendoIzquierda = true;
+                if(e.key === 'ArrowRight') moviendoDerecha = true;
+            });
+
+            document.addEventListener('keyup', (e) => {
+                if(e.key === 'ArrowLeft') moviendoIzquierda = false;
+                if(e.key === 'ArrowRight') moviendoDerecha = false;
+            });
+        }
+
+        function crearObjeto() {
+            const tipo = Math.random() < 0.7 
+                ? tiposSaludables[Math.floor(Math.random() * tiposSaludables.length)]
+                : tiposChatarra[Math.floor(Math.random() * tiposChatarra.length)];
+            
+            objetos.push({
+                x: Math.random() * (canvas.width - 30),
+                y: -30,
+                tipo: tipo,
+                vy: 1.0 + Math.random() * 1.5,
+                activo: true
+            });
+        }
+
+        function dibujarJugador() {
+            ctx.fillStyle = '#FF69B4';
+            ctx.beginPath();
+            ctx.arc(jugador.x, jugador.y, jugador.width/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(jugador.x - 15, jugador.y - 10, 5, 0, Math.PI * 2);
+            ctx.arc(jugador.x + 15, jugador.y - 10, 5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(jugador.x, jugador.y + 10, 10, 0, Math.PI);
+            ctx.stroke();
+        }
+
+        function actualizar() {
+            if(moviendoIzquierda) jugador.velocidadX = -VELOCIDAD;
+            else if(moviendoDerecha) jugador.velocidadX = VELOCIDAD;
+            else jugador.velocidadX = 0;
+
+            jugador.x += jugador.velocidadX;
+
+            if(jugador.x < jugador.width/2) jugador.x = jugador.width/2;
+            if(jugador.x > canvas.width - jugador.width/2) jugador.x = canvas.width - jugador.width/2;
+
+            objetos.forEach((objeto, index) => {
+                objeto.y += objeto.vy * 0.8;
+                
+                const distancia = Math.hypot(jugador.x - objeto.x, jugador.y - objeto.y);
+                if(distancia < 40 && objeto.activo) {
+                    if(tiposSaludables.includes(objeto.tipo)) {
+                        jugador.puntaje++;
+                        document.getElementById('contador').textContent = `🍎: ${jugador.puntaje}/10`;
+                        if(jugador.puntaje >= 10) ganar();
+                    } else {
+                        gameOver();
+                    }
+                    objeto.activo = false;
+                }
+                
+                if(objeto.y > canvas.height) objetos.splice(index, 1);
+            });
+
+            if(Math.random() < 0.025) crearObjeto();
+        }
+
+        function dibujar() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#4B996B';
+            ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+            
+            dibujarJugador();
+            
+            objetos.forEach(objeto => {
+                if(objeto.activo) {
+                    ctx.font = '35px Arial';
+                    ctx.fillText(objeto.tipo, objeto.x - 15, objeto.y + 15);
+                }
+            });
+        }
+
+        function gameOver() {
+            cancelAnimationFrame(gameLoop);
+            derrotaMenu.classList.remove('hidden');
+            canvas.classList.add('hidden');
+            document.querySelector('.controles').classList.add('hidden');
+            document.getElementById('contador').classList.add('hidden');
+        }
+
+        function ganar() {
+            cancelAnimationFrame(gameLoop);
+            victoriaMenu.classList.remove('hidden');
+            canvas.classList.add('hidden');
+            document.querySelector('.controles').classList.add('hidden');
+            document.getElementById('contador').classList.add('hidden');
+        }
+
+        function iniciarJuego() {
+            jugador = {
+                x: canvas.width / 2,
+                y: canvas.height - 100 - 30,
+                width: 60,
+                height: 60,
+                velocidadX: 0,
+                puntaje: 0
+            };
+            
+            objetos = [];
+            document.getElementById('contador').textContent = '🍎: 0/10';
+            
+            mainMenu.classList.add('hidden');
+            victoriaMenu.classList.add('hidden');
+            derrotaMenu.classList.add('hidden');
+            canvas.classList.remove('hidden');
+            document.querySelector('.controles').classList.remove('hidden');
+            document.getElementById('contador').classList.remove('hidden');
+            
+            if(gameLoop) cancelAnimationFrame(gameLoop);
+            resizeCanvas();
+            gameLoop = requestAnimationFrame(function juego() {
+                actualizar();
+                dibujar();
+                gameLoop = requestAnimationFrame(juego);
+            });
+        }
+
+        document.getElementById('jugarBtn').addEventListener('click', iniciarJuego);
+        document.getElementById('volverMenuBtn').addEventListener('click', iniciarJuego);
+        document.getElementById('reintentarBtn').addEventListener('click', iniciarJuego);
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        inicializarControles();
+    </script>
+</body>
+</html>
